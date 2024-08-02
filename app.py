@@ -1,19 +1,17 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 import plotly.express as px
-import plotly.graph_objects as go
+
+# Load the generated data
+df = pd.read_csv("onboarding_large_dummy_data.csv")
 
 # Page Configuration
-st.set_page_config(page_title="Case Study: Improving Onboarding with Ziplyne", layout="wide")
+st.set_page_config(page_title="Onboarding Analysis", layout="wide")
 
-# Set the title of the app
-st.title('Case Study: Improving Onboarding with Ziplyne')
-
-# Create a sidebar for navigation
+# Sidebar Navigation
 st.sidebar.title('Navigation')
-sections = ["Executive Summary", "Introduction", "Business Problem", "Analysis of Current Onboarding Process",
-            "Proposed Solution with Ziplyne", "Implementation Plan", "Expected Outcomes", "Conclusion", "Appendices"]
+sections = ["Executive Summary", "Introduction", "Business Problem", "Proposed Solution with Ziplyne", 
+            "Implementation Plan", "Expected Outcomes", "Conclusion", "Appendices", "Analysis"]
 selection = st.sidebar.radio("Go to", sections)
 
 # Function to display content for each section
@@ -40,13 +38,6 @@ def display_section(section):
         - Lack of user engagement and understanding of product features.
         - Delays in time-to-value for new users.
         Impact of these challenges on business metrics (e.g., user retention, customer satisfaction, revenue).
-        """)
-    elif section == "Analysis of Current Onboarding Process":
-        st.header("Analysis of Current Onboarding Process")
-        st.write("""
-        Step-by-step analysis of the existing onboarding process.
-        Identification of pain points and areas for improvement.
-        Feedback from users and stakeholders regarding current onboarding experiences.
         """)
     elif section == "Proposed Solution with Ziplyne":
         st.header("Proposed Solution with Ziplyne")
@@ -106,53 +97,35 @@ def display_section(section):
         - Screenshots or mockups of the proposed onboarding flows.
         - Technical documentation for integration.
         """)
+    elif section == "Analysis":
+        st.header("Analysis of Onboarding Process")
+
+        # Visualization: Completion Time by Step
+        st.subheader("Completion Time by Step")
+        fig1 = px.box(df, x="Step", y="Completion_Time", color="Completion_Status",
+                      title="Completion Time Distribution by Onboarding Step",
+                      labels={"Step": "Onboarding Step", "Completion_Time": "Completion Time (minutes)",
+                              "Completion_Status": "Completion Status"})
+        st.plotly_chart(fig1)
+
+        # Visualization: Completion Status Distribution
+        st.subheader("Completion Status Distribution")
+        fig2 = px.histogram(df, x="Step", color="Completion_Status", barmode="group",
+                            title="Completion Status Distribution by Onboarding Step",
+                            labels={"Step": "Onboarding Step", "Completion_Status": "Completion Status"})
+        st.plotly_chart(fig2)
+
+        # Visualization: Role and Experience Level Impact
+        st.subheader("Impact of User Role and Experience Level")
+        fig3 = px.histogram(df, x="User_Role", color="Completion_Status", barmode="group",
+                            title="Completion Status by User Role",
+                            labels={"User_Role": "User Role", "Completion_Status": "Completion Status"})
+        fig4 = px.histogram(df, x="Experience_Level", color="Completion_Status", barmode="group",
+                            title="Completion Status by Experience Level",
+                            labels={"Experience_Level": "Experience Level", "Completion_Status": "Completion Status"})
+
+        st.plotly_chart(fig3)
+        st.plotly_chart(fig4)
 
 # Display the selected section
 display_section(selection)
-
-# Dummy Data Generation
-np.random.seed(42)
-data = {
-    "Step": np.tile(["Signup", "First Login", "Profile Setup", "Feature Tour", "First Task", "Feedback"], 100),
-    "Completion_Time": np.random.exponential(scale=5, size=600),
-    "User_Role": np.random.choice(["Admin", "Editor", "Viewer"], 600),
-    "Experience_Level": np.random.choice(["Beginner", "Intermediate", "Advanced"], 600),
-    "Completion_Status": np.random.choice(["Completed", "Abandoned"], 600, p=[0.7, 0.3])
-}
-
-df = pd.DataFrame(data)
-
-# Filter Data for Visualization
-completed_steps = df[df["Completion_Status"] == "Completed"]
-abandoned_steps = df[df["Completion_Status"] == "Abandoned"]
-
-# Visualization: Completion Time by Step
-st.subheader("Completion Time by Step")
-fig1 = px.box(completed_steps, x="Step", y="Completion_Time", title="Completion Time by Onboarding Step",
-              labels={"Step": "Onboarding Step", "Completion_Time": "Completion Time (minutes)"})
-st.plotly_chart(fig1)
-
-# Visualization: Completion Status Distribution
-st.subheader("Completion Status Distribution")
-fig2 = px.histogram(df, x="Step", color="Completion_Status", barmode="group",
-                    title="Completion Status Distribution by Onboarding Step",
-                    labels={"Step": "Onboarding Step", "Completion_Status": "Completion Status"})
-st.plotly_chart(fig2)
-
-# Visualization: Role and Experience Level Impact
-st.subheader("Impact of User Role and Experience Level")
-fig3 = px.histogram(df, x="User_Role", color="Completion_Status", barmode="group",
-                    title="Completion Status by User Role",
-                    labels={"User_Role": "User Role", "Completion_Status": "Completion Status"})
-fig4 = px.histogram(df, x="Experience_Level", color="Completion_Status", barmode="group",
-                    title="Completion Status by Experience Level",
-                    labels={"Experience_Level": "Experience Level", "Completion_Status": "Completion Status"})
-
-st.plotly_chart(fig3)
-st.plotly_chart(fig4)
-
-# Conclusion
-st.markdown("""
-### Conclusion
-The visualizations above highlight the potential challenges in the onboarding process, such as high abandonment rates at specific steps and differences in completion rates across user roles and experience levels. By leveraging Ziplyne's capabilities, these issues can be addressed to improve user retention and satisfaction.
-""")
