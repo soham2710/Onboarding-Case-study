@@ -1,9 +1,7 @@
 import pandas as pd
 import numpy as np
 import plotly.express as px
-import pandas_profiling
 import streamlit as st
-from streamlit_pandas_profiling import st_profile_report
 
 # Load the generated data
 df = pd.read_csv("onboarding_large_dummy_data.csv")
@@ -129,11 +127,6 @@ def display_section(section):
 
         st.plotly_chart(fig3)
         st.plotly_chart(fig4)
-
-        # Pandas Profiling Report
-        st.subheader("Pandas Profiling Report")
-        pr = df.profile_report()
-        st_profile_report(pr)
 
 # Display the selected section
 display_section(selection)
