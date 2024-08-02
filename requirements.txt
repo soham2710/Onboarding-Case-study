@@ -6,3 +6,4 @@ plotly
 tensorflow
 matplotlib
 seaborn
+pandas-profiling
